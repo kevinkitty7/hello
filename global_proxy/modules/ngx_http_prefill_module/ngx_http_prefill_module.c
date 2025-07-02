@@ -6,6 +6,7 @@
 #include <ngx_http.h>
 
 #include "jsmn.h"
+#include "opt_sche.h"
 
 typedef struct {
     ngx_str_t prefill_location;
@@ -305,6 +306,7 @@ static ngx_int_t ngx_http_prefill_subrequest_done(ngx_http_request_t *r, void *d
         ngx_http_finalize_request(r->main, NGX_HTTP_INTERNAL_SERVER_ERROR);
         return rc;
     }
+    update_at_prefill_finished(prefill_shm_zone, r);
 
     ctx->done = 1;
     ctx->status = r->headers_out.status;
@@ -802,6 +804,8 @@ static ngx_int_t ngx_http_prefill_init(ngx_conf_t *cf)
     }
 
     *h = ngx_http_prefill_handler;
+
+    add_opt_prefill_shared_memory_addr(cf);
 
     return NGX_OK;
 }
